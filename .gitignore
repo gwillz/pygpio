@@ -1,0 +1,13 @@
+*.pyc
+*.zip
+*.tar*
+build/
+dist/
+html/
+mk2pylint.cfg
+doc-style.css
+*.log
+*.egg-info/
+*.py~
+*.cfg~
+.coverage
