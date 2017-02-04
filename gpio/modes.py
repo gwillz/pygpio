@@ -1,5 +1,5 @@
-UP = 0
-DOWM = 1
-OUT = 2
-IN = 4
-PWM = 8
+HIGH = True
+LOW = False
+OUT = 0
+IN = 1
+PWM = 2

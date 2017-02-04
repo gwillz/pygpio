@@ -7,10 +7,10 @@ class Pwm(object):
         self._backend = backend
     
     def start(self, freq=440):
-        self._backend.pwmWrite(self._pin, modes.UP, freq)
+        self._backend.writePwm(self._pin, True, freq)
     
     def stop(self):
-        self._backend.pwmWrite(self._pin, modes.DOWN)
+        self._backend.writePwm(self._pin, False)
     
     def setFrequency(self, freq):
-        self._backend.pwmWrite(self._pin, None, freq)
+        self._backend.writePwm(self._pin, None, freq)

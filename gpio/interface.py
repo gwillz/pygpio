@@ -1,6 +1,7 @@
+from abc import ABCMeta, abstractmethod
 from avent import Avent
 
-class GpioInterface(object):
+class GpioInterface(object, metaclass=ABCMeta):
     OUT = 0
     IN = 1
     OUT_PWM = 2
@@ -11,7 +12,7 @@ class GpioInterface(object):
         self._wrapper = wrapper
     
     def _eventCallback(self, pin):
-        self._wrapper.onInterrupt.fire(self._wrapper, pin)
+        self._wrapper.onEvent.fire(self._wrapper, pin)
     
     @abstractmethod
     def setup(self, pin, mode):
@@ -19,6 +20,10 @@ class GpioInterface(object):
     
     @abstractmethod
     def write(self, pin, state):
+        pass
+    
+    @abstractmethod
+    def read(self, pin, state):
         pass
     
     @abstractmethod

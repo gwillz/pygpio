@@ -7,7 +7,6 @@ BULTIN_BACKENDS = ['RpiBackend', 'WiringBackend']
 
 class Gpio(object):
     MODES = [modes.OUT, modes.IN, modes.PWM]
-    STATES = [modes.UP, modes.DOWN]
     
     PWM_FREQ = 100
     PWM_DUTY = 50
@@ -15,7 +14,7 @@ class Gpio(object):
     def __init__(self, backend=None):
         self._backend = None
         self._pins = {}
-        self.onInterrupt = Avent()
+        self.onEvent = Avent()
         
         if backend is None:
             for b in BUILTIN_BACKENDS:
@@ -42,14 +41,23 @@ class Gpio(object):
             self._pins[p] = mode
             self._backend.setup(p, mode)
     
-    def write(self, pin, state=modes.UP):
+    def write(self, pin, state):
         if pin not in self._pins:
             raise IndexError("Pin not configured")
-        if state not in self.STATES:
-            raise TypeError("Invalid state: {}".format(state))
         
         if self._pins[pin] == modes.PWM:
             return Pwm(self._backend, pin)
         
+        if mode != modes.OUT:
+            raise TypeError("pin {} not configured for output".format(pin))
+        
         self._backend.write(pin, state)
+    
+    def read(self, pin):
+        if pin not in self._pins:
+            raise IndexError("Pin not configured")
+        if mode != modes.IN:
+            raise TypeError("pin {} not configured for input".format(pin))
+        
+        return self._backend.read(pin)
     
