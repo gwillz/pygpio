@@ -1,7 +1,7 @@
 # import os
 import wiringpi as wpi
 from gpio.interface import GpioInterface
-from gpio import modes
+from gpio import modes, notes as note
 
 class WiringBackend(GpioInterface):
     MAP = {
@@ -14,7 +14,7 @@ class WiringBackend(GpioInterface):
     
     def __init__(self, wrapper):
         GpioInterface.__init__(self, wrapper)
-        self._pwmfreq = 440
+        self._pwmfreq = note.A
         
         # os.popen('gpio export 18 out')
         wpi.wiringPiSetupSys() # no sudo

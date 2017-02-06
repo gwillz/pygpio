@@ -36,10 +36,12 @@ class Gpio(object):
         if pin not in self._pins:
             raise IndexError("Pin not configured")
         
-        if self._pins[pin] == modes.PWM:
+        mode = self._pins[pin]
+        
+        if mode == modes.PWM:
             return Pwm(self._backend, pin)
         
-        if mode != modes.OUT:
+        elif mode != modes.OUT:
             raise TypeError("pin {} not configured for output".format(pin))
         
         self._backend.write(pin, state)
@@ -47,7 +49,7 @@ class Gpio(object):
     def read(self, pin):
         if pin not in self._pins:
             raise IndexError("Pin not configured")
-        if mode != modes.IN:
+        if self._pins[pin] != modes.IN:
             raise TypeError("pin {} not configured for input".format(pin))
         
         return self._backend.read(pin)

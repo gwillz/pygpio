@@ -1,5 +1,4 @@
-from gpio.interface import GpioInterface
-from gpio import modes
+import time
 
 class Pwm(object):
     def __init__(self, pin, backend):
@@ -14,3 +13,14 @@ class Pwm(object):
     
     def setFrequency(self, freq):
         self._backend.writePwm(self._pin, None, freq)
+    
+    def playScore(self, score):
+        for i in score[1:]:
+            if not i:
+                time.sleep(score[0] + score[0]/2)
+                continue
+            
+            self.start(i)
+            time.sleep(score[0])
+            self.stop()
+            time.sleep(score[0]/2)
