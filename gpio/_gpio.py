@@ -1,9 +1,8 @@
 from avent import Avent
 from gpio.interface import GpioInterface
+from gpio.backends._native import NativeBackend
 from gpio._pwm import Pwm
 from gpio import modes
-
-BULTIN_BACKENDS = ['RpiBackend', 'WiringBackend']
 
 class Gpio(object):
     MODES = [modes.OUT, modes.IN, modes.PWM]
@@ -17,19 +16,11 @@ class Gpio(object):
         self.onEvent = Avent()
         
         if backend is None:
-            for b in BUILTIN_BACKENDS:
-                try:
-                    self._backend = globals()[b](self)
-                    break
-                except KeyError: pass
-        
-        elif not issubclass(backend, GpioInterface):
+            backend = NativeBackend
+        if not issubclass(backend, GpioInterface):
             raise RuntimeError('Invalid backend interface')
-        else:
-            self._backend = backend(self)
         
-        if self._backend is None:
-            raise RuntimeError('No builtin backends available: {}'.format(BUILTIN_BACKENDS))
+        self._backend = backend(self)
     
     def setup(self, pin, mode):
         if mode not in self.MODES:
