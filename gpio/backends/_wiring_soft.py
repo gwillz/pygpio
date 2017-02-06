@@ -17,7 +17,7 @@ class WiringBackend(GpioInterface):
         self._pwmfreq = 440
         
         # os.popen('gpio export 18 out')
-        wpi.wiringPiSetupSys()
+        wpi.wiringPiSetupSys() # no sudo
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
@@ -27,7 +27,7 @@ class WiringBackend(GpioInterface):
         wpi.digitalWrite(pin, self.MAP[state])
     
     def read(self, pin):
-        wpi.digitalRead(pin)
+        return wpi.digitalRead(pin)
     
     def writePwm(self, pin, state, freq=None):
         if freq:

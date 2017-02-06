@@ -16,15 +16,21 @@ class WiringHardBackend(GpioInterface):
     def __init__(self, wrapper):
         GpioInterface.__init__(self, wrapper)
         
-        wpi.wiringPiSetupGpio()
+        wpi.wiringPiSetupGpio() # requires sudo
     
     def setup(self, pin, mode):
         wpi.pinMode(self.MAP[mode])
+        if mode == modes.PWM:
+            wpi.pwmSetMode(wpi.PWM_MODE_MS)
     
     def write(self, pin, state):
         wpi.digitalWrite(pin, self.MAP[state])
     
+    def read(self, pin):
+        return wpi.digitalRead(pin)
+    
     def writePwm(self, pin, state, freq=None):
+        print('WIP: wiringPi hardware PWM')
         if freq:
             wpi.pwmSetClock(int(19200000*freq)//2)
             wpi.pwmSetRange(int(19200000*freq))
