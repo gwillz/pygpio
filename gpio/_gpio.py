@@ -2,13 +2,13 @@ from avent import Avent
 from gpio.interface import GpioInterface
 from gpio.backends._native import NativeBackend
 from gpio._pwm import Pwm
-from gpio import modes
+from gpio import modes, notes as note
 
 class Gpio(object):
     MODES = [modes.OUT, modes.IN, modes.PWM]
     
-    PWM_FREQ = 100
-    PWM_DUTY = 50
+    PWM_FREQ = note.A
+    PWM_DUTY = 0.50
     
     def __init__(self, backend=None):
         self._backend = None
@@ -25,14 +25,18 @@ class Gpio(object):
     def setup(self, pin, mode):
         if mode not in self.MODES:
             raise TypeError("Invalid mode: {}".format(mode))
-        if not isinstance(pin, list):
+        
+        if mode == modes.PWM and isinstance(pin, int):
+            return Pwm(self._backend, pin)
+        
+        if isinstance(pin, int):
             pin = [pin]
         
         for p in pin:
             self._pins[p] = mode
             self._backend.setup(p, mode)
     
-    def write(self, pin, state):
+    def write(self, pin, state=True):
         if pin not in self._pins:
             raise IndexError("Pin not configured")
         

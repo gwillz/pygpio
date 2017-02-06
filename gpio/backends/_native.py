@@ -8,10 +8,12 @@ sudo su -c 'echo dtoverlay=pwm,pin=18,func=2 > /boot/config.txt'
 sudo reboot
 """
 
+# TODO read(pin)
+# TODO events callbacks
+
 import math
 from gpio.interface import GpioInterface
 from gpio import modes, notes as note
-
 
 def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
     space = int(1.0 / freq * multiplier)
@@ -34,8 +36,7 @@ class NativeBackend(GpioInterface):
     def __init__(self, wrapper):
         GpioInterface.__init__(self, wrapper)
         self._last_error = None
-        self._pwmfreq = note.A
-        self._pwmduty = 0.50
+        self._pwmfreq = wrapper.PWM_FREQ
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
@@ -74,7 +75,7 @@ class NativeBackend(GpioInterface):
     
     def _startPwm(self, pin):
         p = self.PWM_PINS[pin]
-        mark, space = hertz_to_ms(self._pwmfreq, self._pwmduty)
+        mark, space = hertz_to_ms(self._pwmfreq, self._wrapper.PWM_DUTY)
         
         self._write(self._PWM, space, cs=p[1], ch=p[2], prop='period')
         self._write(self._PWM, mark, cs=p[1], ch=p[2], prop='duty_cycle')

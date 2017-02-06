@@ -7,8 +7,8 @@ class RpiBackend(GpioInterface):
         modes.OUT: rpi.OUT,
         modes.IN: rpi.IN,
         modes.PWM: rpi.OUT,
-        True: rpi.UP,
-        False: rpi.DOWN
+        True: rpi.HIGH,
+        False: rpi.LOW
     }
     
     def __init__(self, wrapper):
@@ -21,7 +21,7 @@ class RpiBackend(GpioInterface):
     def setup(self, pin, mode):
         rpi.setup(pin, self.MAP[mode])
         if mode == modes.PWM:
-            self._pwms[pin] = rpi.PWM(pin, self._wrapper.PWM_FREQ)
+            self._pwms[pin] = rpi.PWM(pin, self._wrapper)
         elif mode == modes.IN:
             rpi.add_event_detect(pin, rpi.RISING, self._eventCallback, 50)
     
@@ -36,7 +36,7 @@ class RpiBackend(GpioInterface):
             self._pwms[pin].ChangeFrequency(freq)
         
         if state:
-            self._pwms[pin].start(self._wrapper.PWM_DUTY)
+            self._pwms[pin].start(self._wrapper.PWM_DUTY*100)
         elif state is False:
             self._pwms[pin].stop()
     

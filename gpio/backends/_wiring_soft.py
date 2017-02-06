@@ -14,7 +14,7 @@ class WiringBackend(GpioInterface):
     
     def __init__(self, wrapper):
         GpioInterface.__init__(self, wrapper)
-        self._pwmfreq = note.A
+        self._pwmfreq = wrapper.PWM_FREQ
         
         # os.popen('gpio export 18 out')
         wpi.wiringPiSetupSys() # no sudo
