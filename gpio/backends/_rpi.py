@@ -15,15 +15,27 @@ class RpiBackend(GpioInterface):
         GpioInterface.__init__(self, wrapper)
         
         self._pwms = {}
+        self._pwmduty = self._wrapper.PWM_DUTY
+        
         rpi.setmode(rpi.BCM)
         rpi.setwarnings(False)
     
     def setup(self, pin, mode):
         rpi.setup(pin, self.MAP[mode])
         if mode == modes.PWM:
-            self._pwms[pin] = rpi.PWM(pin, self._wrapper)
+            self._pwms[pin] = rpi.PWM(pin, self._wrapper.PWM_FREQ)
         elif mode == modes.IN:
             rpi.add_event_detect(pin, rpi.RISING, self._eventCallback, 50)
+        
+        return True
+    
+    def clear(self, pin):
+        mode = self._wrapper._pins[pin]
+        if mode == modes.PWM:
+            self._pwms[pin].stop()
+            del self._pwms[pin]
+        
+        rpi.cleanup(pin)
     
     def write(self, pin, state):
         rpi.output(pin, self.MAP[state])
@@ -31,12 +43,12 @@ class RpiBackend(GpioInterface):
     def read(self, pin):
         return rpi.input(pin) == 0
     
-    def writePwm(self, pin, state, freq=None):
-        if freq:
-            self._pwms[pin].ChangeFrequency(freq)
+    def writePwm(self, pin, state, freq=None, duty=None):
+        if freq: self._pwms[pin].ChangeFrequency(freq)
+        if duty: self._pwmduty = duty
         
         if state:
-            self._pwms[pin].start(self._wrapper.PWM_DUTY*100)
+            self._pwms[pin].start(self._pwmduty*100)
         elif state is False:
             self._pwms[pin].stop()
     

@@ -1,3 +1,4 @@
+import atexit
 from avent import Avent
 from gpio.interface import GpioInterface
 from gpio.backends._native import NativeBackend
@@ -11,40 +12,47 @@ class Gpio(object):
     PWM_DUTY = 0.50
     
     def __init__(self, backend=None):
-        self._backend = None
         self._pins = {}
         self.onEvent = Avent()
         
-        if backend is None:
-            backend = NativeBackend
-        if not issubclass(backend, GpioInterface):
+        if backend and issubclass(backend, GpioInterface):
+            self._backend = backend(self)
+        elif backend:
             raise RuntimeError('Invalid backend interface')
+        else:
+            self._backend = NativeBackend(self)
         
-        self._backend = backend(self)
+        atexit.register(self.cleanup)
     
     def setup(self, pin, mode):
         if mode not in self.MODES:
             raise TypeError("Invalid mode: {}".format(mode))
         
         if mode == modes.PWM and isinstance(pin, int):
-            return Pwm(self._backend, pin)
+            if self._backend.setup(pin, mode):
+                self._pins[pin] = mode
+                return Pwm(self._backend, pin)
         
         if isinstance(pin, int):
             pin = [pin]
         
         for p in pin:
-            self._pins[p] = mode
-            self._backend.setup(p, mode)
+            if self._backend.setup(p, mode):
+                self._pins[p] = mode
+    
+    def cleanup(self):
+        for pin in self._pins:
+            self._backend.clear(pin)
+        
+        # self._pins = {} # clear?
     
     def write(self, pin, state=True):
         if pin not in self._pins:
             raise IndexError("Pin not configured")
         
         mode = self._pins[pin]
-        
         if mode == modes.PWM:
             return Pwm(self._backend, pin)
-        
         elif mode != modes.OUT:
             raise TypeError("pin {} not configured for output".format(pin))
         
@@ -58,3 +66,8 @@ class Gpio(object):
         
         return self._backend.read(pin)
     
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, ex_type, ex_val, trace):
+        self.cleanup()

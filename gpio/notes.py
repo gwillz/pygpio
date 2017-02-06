@@ -19,7 +19,7 @@ class octave:
     up = math.pow(_a, 12)
     down = math.pow(_a, -12)
 
-class Score(object):
+class scores(object):
     song = [0.2,
             E, D, C, D,
             E, E, E, None,

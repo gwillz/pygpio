@@ -11,9 +11,9 @@ sudo reboot
 # TODO read(pin)
 # TODO events callbacks
 
-import math
+import math, time
 from gpio.interface import GpioInterface
-from gpio import modes, notes as note
+from gpio import modes
 
 def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
     space = int(1.0 / freq * multiplier)
@@ -27,6 +27,7 @@ class NativeBackend(GpioInterface):
         12: ('alt0', 1, 0),
         19: ('alt5', 1, 1)
     } # pin, func, chip, channel
+    TICK = 0.1
     
     # chip-select, channel, property
     _PWM = '/sys/class/pwm/pwmchip{cs:d}/pwm{ch:d}/{prop}'
@@ -37,18 +38,25 @@ class NativeBackend(GpioInterface):
         GpioInterface.__init__(self, wrapper)
         self._last_error = None
         self._pwmfreq = wrapper.PWM_FREQ
+        self._pwmduty = wrapper.PWM_DUTY
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
             self._stopPwm(pin)
         else:
+            m = "out" if mode == modes.OUT else "in"
             self._write(self._EXPORT, pin, prop='export')
-    
-    def __del__(self):
-        for p in self._wrapper._pins:
-            if self._wrapper._pins[p] == modes.PWM: continue
+            time.sleep(self.TICK) # file ops are slow apparently
+            self._write(self._GPIO, m, pin=pin, prop='direction')
             
-            self._write(self._EXPORT, p, prop='unexport')
+        return True
+    
+    def clear(self, pin):
+        mode = self._wrapper._pins[pin]
+        if mode == modes.PWM:
+            self._stopPwm(pin)
+        else:
+            self._write(self._EXPORT, pin, prop='unexport')
     
     def write(self, pin, state):
         self._write(self._GPIO, 1 if state else 0, pin=pin, prop='value')
@@ -57,9 +65,9 @@ class NativeBackend(GpioInterface):
         # return None
         raise NotImplementedError("TODO read(pin)")
     
-    def writePwm(self, pin, state, freq=None):
-        if freq:
-            self._pwmfreq = freq
+    def writePwm(self, pin, state, freq=None, duty=None):
+        if freq: self._pwmfreq = freq
+        if duty: self._pwmduty = duty
         
         if state:
             self._startPwm(pin)
@@ -72,17 +80,20 @@ class NativeBackend(GpioInterface):
                 f.write(str(value))
         except IOError as e:
             self._last_error = e
+        
+        # time.sleep(self.TICK)
     
     def _startPwm(self, pin):
         p = self.PWM_PINS[pin]
-        mark, space = hertz_to_ms(self._pwmfreq, self._wrapper.PWM_DUTY)
+        mark, space = hertz_to_ms(self._pwmfreq, self._pwmduty)
         
+        self._write(self._PWM, mark, cs=p[1], ch=p[2], prop='duty_cycle')
         self._write(self._PWM, space, cs=p[1], ch=p[2], prop='period')
         self._write(self._PWM, mark, cs=p[1], ch=p[2], prop='duty_cycle')
         self._write(self._PWM, 1, cs=p[1], ch=p[2], prop='enable')
     
     def _stopPwm(self, pin):
         p = self.PWM_PINS[pin]
-        self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='duty_cyle')
+        self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='duty_cycle')
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='enable')
     

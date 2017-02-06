@@ -23,6 +23,17 @@ class WiringHardBackend(GpioInterface):
             wpi.pwmSetMode(wpi.PWM_MODE_MS)
             wpi.pwmSetClock(int(19200000*self._wrapper.PWM_FREQ)//2)
             wpi.pwmSetRange(int(19200000*self._wrapper.PWM_FREQ))
+            
+        return True
+    
+    def clear(self, pin):
+        mode = self._wrapper._pins[pin]
+        if mode == modes.PWM:
+            wpi.pwmWrite(pin, 0)
+        else:
+            wpi.digitalWrite(pin, wpi.LOW)
+        
+        wpi.pinMode(wpi.INPUT)
     
     def write(self, pin, state):
         wpi.digitalWrite(pin, self.MAP[state])
@@ -30,12 +41,12 @@ class WiringHardBackend(GpioInterface):
     def read(self, pin):
         return wpi.digitalRead(pin)
     
-    def writePwm(self, pin, state, freq=None):
+    def writePwm(self, pin, state, freq=None, duty=None):
         print('WIP: wiringPi hardware PWM')
+        # TODO duty
         if freq:
             wpi.pwmSetClock(int(19200000*freq)//2)
             wpi.pwmSetRange(int(19200000*freq))
-        
         if state:
             wpi.pwmWrite(pin, int(self._wrapper.PWM_DUTY*4096))
         elif state is False:

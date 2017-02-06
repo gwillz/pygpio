@@ -1,12 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
 class GpioInterface(object, metaclass=ABCMeta):
-    OUT = 0
-    IN = 1
-    OUT_PWM = 2
-    DOWN = 4
-    UP = 8
-    
     def __init__(self, wrapper):
         self._wrapper = wrapper
     
@@ -18,6 +12,10 @@ class GpioInterface(object, metaclass=ABCMeta):
         pass
     
     @abstractmethod
+    def clear(self, pin):
+        pass
+    
+    @abstractmethod
     def write(self, pin, state):
         pass
     
@@ -26,5 +24,5 @@ class GpioInterface(object, metaclass=ABCMeta):
         pass
     
     @abstractmethod
-    def writePwm(self, pin, state, freq=None):
+    def writePwm(self, pin, state, freq=None, duty=None):
         pass

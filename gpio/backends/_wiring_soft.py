@@ -1,7 +1,7 @@
 # import os
 import wiringpi as wpi
 from gpio.interface import GpioInterface
-from gpio import modes, notes as note
+from gpio import modes
 
 class WiringBackend(GpioInterface):
     MAP = {
@@ -23,16 +23,25 @@ class WiringBackend(GpioInterface):
         if mode == modes.PWM:
             wpi.softToneCreate(pin)
         
+        return True
+    
+    def clear(self, pin):
+        mode = self._wrapper._pins[pin]
+        if mode == modes.PWM:
+            wpi.softTimeWrite(pin, 0)
+        else:
+            wpi.digitalWrite(pin, wpi.LOW)
+    
     def write(self, pin, state):
         wpi.digitalWrite(pin, self.MAP[state])
     
     def read(self, pin):
         return wpi.digitalRead(pin)
     
-    def writePwm(self, pin, state, freq=None):
+    def writePwm(self, pin, state, freq=None, duty=None):
+        # TODO duty
         if freq:
             self._pwmfreq = freq
-        
         if state:
             wpi.softToneWrite(pin, self._pwmfreq)
         elif state is False:

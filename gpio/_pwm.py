@@ -1,7 +1,7 @@
 import time
 
 class Pwm(object):
-    def __init__(self, pin, backend):
+    def __init__(self, backend, pin):
         self._pin = pin
         self._backend = backend
     
