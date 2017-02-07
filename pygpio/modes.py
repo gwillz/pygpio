@@ -1,5 +1,10 @@
-HIGH = True
-LOW = False
-OUT = 0
-IN = 1
-PWM = 2
+# pragma pylint: disable=bad-whitespace
+HIGH    = True
+LOW     = False
+OUT     = 0
+IN      = 1
+PWM     = 2
+_EVENT  = 4
+RISING  = 13 # 8 + _EVENT + IN
+FALLING = 21 # 16 + _EVENT + IN
+BOTH    = 29 # 8 + 16 + _EVENT + IN

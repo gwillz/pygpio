@@ -2,7 +2,7 @@
 # TODO read(pin)
 # TODO events callbacks
 
-import math, time
+import math, time, threading
 from gpio.interface import GpioInterface
 from gpio import modes
 
@@ -18,7 +18,7 @@ class NativeBackend(GpioInterface):
         12: ('alt0', 1, 0),
         19: ('alt5', 1, 1)
     } # pin, func, chip, channel
-    TICK = 0.1
+    TICK = 1.0/50
     
     # chip-select, channel, property
     _PWM = '/sys/class/pwm/pwmchip{cs:d}/pwm{ch:d}/{prop}'
@@ -30,15 +30,35 @@ class NativeBackend(GpioInterface):
         self._last_error = None
         self._pwmfreq = wrapper.PWM_FREQ
         self._pwmduty = wrapper.PWM_DUTY
+        
+        self._thread = threading.Thread(target=self._loop)
+        self._thread.daemon = True
+        self._thread.start()
+    
+    def __del__(self):
+        self._thread.stop()
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
             self._stopPwm(pin)
         else:
-            m = "out" if mode == modes.OUT else "in"
+            m = 'in' if mode & modes.IN else 'out'
+            
             self._write(self._EXPORT, pin, prop='export')
-            time.sleep(self.TICK) # file ops are slow apparently
+            time.sleep(self.TICK*5) # file ops are slow apparently
             self._write(self._GPIO, m, pin=pin, prop='direction')
+            
+            if mode & modes._EVENT:
+                if mode == modes.RISING: edge = 'rising'
+                elif mode == modes.FALLING: edge = 'falling'
+                else:
+                    edge = 'both'
+                    mode = modes.BOTH
+                
+                time.sleep(self.TICK*5)
+                self._write(self._GPIO, edge, pin=pin, prop='edge')
+                
+                self._inputs[pin] = [mode, f, False]
             
         return True
     
@@ -88,3 +108,22 @@ class NativeBackend(GpioInterface):
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='duty_cycle')
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='enable')
     
+    def _loop(self):
+        while True:
+            for pin in self._inputs:
+                mode, f, _ = self._inputs[pin]
+                
+                f.seek(0)
+                v = f.read()[0]
+                
+                if v == '1':
+                    self._inputs[pin][2] = True
+                    
+                    if mode & modes.RISING:
+                        self.onRising.fire(self, pin)
+                    elif mode & modes.FALLING:
+                        self.onRising.fire(self, pin)
+                else:
+                    self._inputs[pin][2] = False
+                
+                time.sleep(self.TICK)
