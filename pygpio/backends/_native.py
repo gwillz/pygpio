@@ -3,8 +3,8 @@
 # TODO events callbacks
 
 import math, time
-from gpio.interface import GpioInterface
-from gpio import modes
+from pygpio.interface import GpioInterface
+from pygpio import modes
 
 def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
     space = int(1.0 / freq * multiplier)
