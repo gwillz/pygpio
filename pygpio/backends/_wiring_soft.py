@@ -1,7 +1,7 @@
 # import os
 import wiringpi as wpi
-from gpio.interface import GpioInterface
-from gpio import modes
+from pygpio.interface import GpioInterface
+from pygpio import modes
 
 class WiringBackend(GpioInterface):
     MAP = {

@@ -1,6 +1,6 @@
 import RPi.GPIO as rpi
-from gpio.interface import GpioInterface
-from gpio import modes
+from pygpio.interface import GpioInterface
+from pygpio import modes
 
 class RpiBackend(GpioInterface):
     MAP = {

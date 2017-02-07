@@ -1,9 +1,9 @@
 import atexit
 from avent import Avent
-from gpio.interface import GpioInterface
-from gpio.backends._native import NativeBackend
-from gpio._pwm import Pwm
-from gpio import modes, notes as note
+from pygpio.interface import GpioInterface
+from pygpio.backends._native import NativeBackend
+from pygpio._pwm import Pwm
+from pygpio import modes, notes as note
 
 class Gpio(object):
     MODES = [modes.OUT, modes.IN, modes.PWM]

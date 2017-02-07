@@ -2,4 +2,4 @@
 TODO DOCS
 """
 
-from gpio._gpio import Gpio
+from pygpio._gpio import Gpio
