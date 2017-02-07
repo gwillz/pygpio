@@ -1,12 +1,3 @@
-"""
-# download/compile/install librpip
-
-cp distro/arch/pwm-init.service /etc/systemd/system
-sudo systemctl daemon-reload`
-sudo systemctl enable pwm-init
-sudo su -c 'echo dtoverlay=pwm,pin=18,func=2 > /boot/config.txt'
-sudo reboot
-"""
 
 # TODO read(pin)
 # TODO events callbacks
