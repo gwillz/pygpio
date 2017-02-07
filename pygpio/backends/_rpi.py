@@ -14,7 +14,7 @@ class RpiBackend(GpioInterface):
     def __init__(self, wrapper):
         GpioInterface.__init__(self, wrapper)
         
-        self._pwms = {}
+        self._pwms = {} #: pin: GPIO.PWM()
         self._pwmduty = self._wrapper.PWM_DUTY
         
         rpi.setmode(rpi.BCM)

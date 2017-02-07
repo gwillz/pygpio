@@ -3,6 +3,7 @@
 # TODO events callbacks
 
 import math, time, threading
+from avent import wait_for
 from pygpio.interface import GpioInterface
 from pygpio import modes
 
@@ -17,7 +18,7 @@ class NativeBackend(GpioInterface):
         13: ('alt0', 0, 1),
         12: ('alt0', 1, 0),
         19: ('alt5', 1, 1)
-    } # pin, func, chip, channel
+    } #: pin: func, chip, channel
     TICK = 1.0/50
     
     # chip-select, channel, property
@@ -31,12 +32,17 @@ class NativeBackend(GpioInterface):
         self._pwmfreq = wrapper.PWM_FREQ
         self._pwmduty = wrapper.PWM_DUTY
         
+        self._inputs = {} #: pin: mode, file, bounce
+        self._continue = True
         self._thread = threading.Thread(target=self._loop)
         self._thread.daemon = True
         self._thread.start()
     
     def __del__(self):
-        self._thread.stop()
+        self._continue = False
+        wait_for(self._thread.is_alive, state=False)
+        for pin in self._inputs:
+            self._inputs[pin][1].close()
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
@@ -58,7 +64,16 @@ class NativeBackend(GpioInterface):
                 time.sleep(self.TICK*5)
                 self._write(self._GPIO, edge, pin=pin, prop='edge')
                 
+                if pin in self._inputs:
+                    self._inputs[pin][1].close()
+                    del self._inputs[pin]
+                
+                f = open(self._GPIO.format(pin=pin, prop='value'), 'r')
                 self._inputs[pin] = [mode, f, False]
+            
+            elif pin in self._inputs:
+                self._inputs[pin][1].close()
+                del self._inputs[pin]
             
         return True
     
@@ -73,9 +88,14 @@ class NativeBackend(GpioInterface):
         self._write(self._GPIO, 1 if state else 0, pin=pin, prop='value')
         
     def read(self, pin):
-        # return None
-        raise NotImplementedError("TODO read(pin)")
-    
+        mode = self._wrapper._pins[pin]
+        
+        if mode & modes._EVENT:
+            return self._inputs[pin][2] > 0
+        else:
+            with open(self._GPIO.format(pin=pin, prop='value'), 'r') as f:
+                return f.read()[0] == '1'
+        
     def writePwm(self, pin, state, freq=None, duty=None):
         if freq: self._pwmfreq = freq
         if duty: self._pwmduty = duty
@@ -109,21 +129,28 @@ class NativeBackend(GpioInterface):
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='enable')
     
     def _loop(self):
-        while True:
+        while self._continue:
             for pin in self._inputs:
-                mode, f, _ = self._inputs[pin]
+                mode, f, bounce = self._inputs[pin]
                 
-                f.seek(0)
-                v = f.read()[0]
+                try:
+                    f.seek(0)
+                    v = f.read()[0]
+                except IOError as e:
+                    self._last_error = e
+                    continue
                 
-                if v == '1':
-                    self._inputs[pin][2] = True
+                if v == '1' and bounce == 0:
+                    self._inputs[pin][2] = self._wrapper.IN_BOUNCE
                     
-                    if mode & modes.RISING:
-                        self.onRising.fire(self, pin)
-                    elif mode & modes.FALLING:
-                        self.onRising.fire(self, pin)
+                    if mode & modes._RISING:
+                        self._wrapper.onRising.fire(self, pin)
+                    elif mode & modes._FALLING:
+                        self._wrapper.onFalling.fire(self, pin)
+                
+                elif v == '1' and bounce > 0:
+                    self._inputs[pin][2] -= self.TICK
                 else:
-                    self._inputs[pin][2] = False
+                    self._inputs[pin][2] = 0
                 
                 time.sleep(self.TICK)
