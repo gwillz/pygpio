@@ -1,5 +1,5 @@
 import math
-# pylint: disable=bad-whitespace
+# pragma pylint: disable=bad-whitespace
 
 _a = math.pow(2, 1.0/12)
 A  = 440

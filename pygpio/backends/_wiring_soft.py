@@ -7,6 +7,8 @@ class WiringBackend(GpioInterface):
     MAP = {
         modes.OUT: wpi.OUTPUT,
         modes.IN: wpi.INPUT,
+        modes.RISING: wpi.INPUT,
+        modes.FALLING: wpi.INPUT,
         modes.PWM: wpi.OUTPUT,
         True: wpi.HIGH,
         False: wpi.LOW

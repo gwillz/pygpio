@@ -1,19 +1,26 @@
 import atexit
-from avent import Avent
+from avent import Event
 from pygpio.interface import GpioInterface
 from pygpio.backends._native import NativeBackend
 from pygpio._pwm import Pwm
 from pygpio import modes, notes as note
 
 class Gpio(object):
-    MODES = [modes.OUT, modes.IN, modes.PWM]
+    MODES = [modes.OUT,
+             modes.IN,
+             modes.PWM,
+             modes.RISING,
+             modes.FALLING,
+             modes.BOTH]
     
-    PWM_FREQ = note.A
-    PWM_DUTY = 0.50
+    PWM_FREQ = note.A #: in hertz
+    PWM_DUTY = 0.50 #: percentage
+    IN_BOUNCE = 0.25 #: in seconds
     
     def __init__(self, backend=None):
-        self._pins = {}
-        self.onEvent = Avent()
+        self._pins = {} #: pin: mode
+        self.onRising = Event()
+        self.onFalling = Event()
         
         if backend and issubclass(backend, GpioInterface):
             self._backend = backend(self)

@@ -1,8 +1,6 @@
 
-# TODO read(pin)
-# TODO events callbacks
-
-import math, time
+import math, time, threading, select
+from avent import wait_for
 from pygpio.interface import GpioInterface
 from pygpio import modes
 
@@ -17,8 +15,9 @@ class NativeBackend(GpioInterface):
         13: ('alt0', 0, 1),
         12: ('alt0', 1, 0),
         19: ('alt5', 1, 1)
-    } # pin, func, chip, channel
-    TICK = 0.1
+    } #: pin -> func, chip, channel
+    TICK = 0.1 #: time between export and gpio available (in seconds)
+    POLL = 0.2 #: read timeout (in seconds)
     
     # chip-select, channel, property
     _PWM = '/sys/class/pwm/pwmchip{cs:d}/pwm{ch:d}/{prop}'
@@ -30,32 +29,64 @@ class NativeBackend(GpioInterface):
         self._last_error = None
         self._pwmfreq = wrapper.PWM_FREQ
         self._pwmduty = wrapper.PWM_DUTY
+        
+        self._in_poll = select.poll()
+        self._in_pin = {} #: pin -> mode, file, value
+        self._in_file = {} #: fileno -> file, pin
+        
+        self._continue = True
+        self._thread = threading.Thread(target=self._loop)
+        self._thread.daemon = True
+        self._thread.start()
+    
+    def __del__(self):
+        self._continue = False
+        wait_for(self._thread.is_alive, state=False)
+        
+        for pin in self._in_pin:
+            self._dropInput(pin, destroy=False)
+        self._in_pin = {}
+        
+        # drop inputs before to avoid iterator errors
+        for pin in self._wrapper._pins:
+            self.clear(pin)
     
     def setup(self, pin, mode):
         if mode == modes.PWM:
             self._stopPwm(pin)
         else:
-            m = "out" if mode == modes.OUT else "in"
+            m = 'in' if mode & modes._IN else 'out'
+            
             self._write(self._EXPORT, pin, prop='export')
             time.sleep(self.TICK) # file ops are slow apparently
             self._write(self._GPIO, m, pin=pin, prop='direction')
+            
+            
+            if pin in self._in_pin:
+                self._dropInput(pin)
+            
+            if mode & modes._IN:
+                time.sleep(self.TICK)
+                self._addInput(pin, mode)
             
         return True
     
     def clear(self, pin):
         mode = self._wrapper._pins[pin]
+        
         if mode == modes.PWM:
             self._stopPwm(pin)
         else:
+            self._dropInput(pin)
+            
             self._write(self._EXPORT, pin, prop='unexport')
     
     def write(self, pin, state):
         self._write(self._GPIO, 1 if state else 0, pin=pin, prop='value')
         
     def read(self, pin):
-        # return None
-        raise NotImplementedError("TODO read(pin)")
-    
+        return self._in_pin[pin][2]
+        
     def writePwm(self, pin, state, freq=None, duty=None):
         if freq: self._pwmfreq = freq
         if duty: self._pwmduty = duty
@@ -71,8 +102,6 @@ class NativeBackend(GpioInterface):
                 f.write(str(value))
         except IOError as e:
             self._last_error = e
-        
-        # time.sleep(self.TICK)
     
     def _startPwm(self, pin):
         p = self.PWM_PINS[pin]
@@ -88,3 +117,47 @@ class NativeBackend(GpioInterface):
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='duty_cycle')
         self._write(self._PWM, 0, cs=p[1], ch=p[2], prop='enable')
     
+    def _addInput(self, pin, mode):
+        self._write(self._GPIO, modes._edge_name(mode), pin=pin, prop='edge')
+        
+        f = open(self._GPIO.format(pin=pin, prop='value'), 'rb+')
+        v = self._readInput(f)
+        
+        self._in_pin[pin] = [mode, f, v]
+        self._in_file[f.fileno()] = (f, pin)
+        self._in_poll.register(f, select.POLLPRI | select.POLLERR)
+        
+    def _dropInput(self, pin, destroy=True):
+        try:
+            m, f, v = self._in_pin[pin]
+            self._in_poll.unregister(f)
+            f.close()
+            
+            if destroy:
+                del self._in_pin[pin]
+        except KeyError: pass
+    
+    def _readInput(self, f):
+        try:
+            f.seek(0)
+            return int(f.read()[0]) == 49 # '1' in ascii
+        except (IOError, ValueError, IndexError) as e:
+            self._last_error = e
+    
+    def _loop(self):
+        timeout = int(self.POLL*1000)
+        
+        while self._continue:
+            for fd, ev in self._in_poll.poll(timeout): # this blocks
+                f, pin = self._in_file[fd]
+                mode, _, old_v = self._in_pin[pin]
+                
+                v = self._readInput(f)
+                self._in_pin[pin][2] = v
+                
+                if v != old_v:
+                    if v and mode & modes._RISING:
+                        self._wrapper.onRising.fire(self._wrapper, pin)
+                    elif not v and mode & modes._FALLING:
+                        self._wrapper.onFalling.fire(self._wrapper, pin)
+                
