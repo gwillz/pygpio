@@ -5,7 +5,9 @@ from pygpio import modes
 class RpiBackend(GpioInterface):
     MAP = {
         modes.OUT: rpi.OUT,
-        modes.IN: rpi.IN,
+        modes.IN: rpi.IN, # and BOTH
+        modes.RISING: rpi.IN,
+        modes.FALLING: rpi.IN,
         modes.PWM: rpi.OUT,
         True: rpi.HIGH,
         False: rpi.LOW
@@ -24,8 +26,10 @@ class RpiBackend(GpioInterface):
         rpi.setup(pin, self.MAP[mode])
         if mode == modes.PWM:
             self._pwms[pin] = rpi.PWM(pin, self._wrapper.PWM_FREQ)
-        elif mode == modes.IN:
-            rpi.add_event_detect(pin, rpi.RISING, self._eventCallback, 50)
+        elif mode & modes._RISING:
+            rpi.add_event_detect(pin, rpi.RISING, self._risingCallback, 100)
+        elif mode & modes._FALLING:
+            rpi.add_event_detect(pin, rpi.FALLING, self._fallingCallback, 100)
         
         return True
     
@@ -51,4 +55,10 @@ class RpiBackend(GpioInterface):
             self._pwms[pin].start(self._pwmduty*100)
         elif state is False:
             self._pwms[pin].stop()
+    
+    def _risingCallback(self, pin):
+        self._wrapper.onRising.fire(self._wrapper, pin)
+        
+    def _fallingCallback(self, pin):
+        self._wrapper.onFalling.fire(self._wrapper, pin)
     

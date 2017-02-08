@@ -1,7 +1,4 @@
 
-# TODO read(pin)
-# TODO events callbacks
-
 import math, time, threading, select
 from avent import wait_for
 from pygpio.interface import GpioInterface
@@ -160,7 +157,7 @@ class NativeBackend(GpioInterface):
                 
                 if v != old_v:
                     if v and mode & modes._RISING:
-                        self._wrapper.onRising.fire(self, pin)
+                        self._wrapper.onRising.fire(self._wrapper, pin)
                     elif not v and mode & modes._FALLING:
-                        self._wrapper.onFalling.fire(self, pin)
+                        self._wrapper.onFalling.fire(self._wrapper, pin)
                 

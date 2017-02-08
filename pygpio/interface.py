@@ -4,9 +4,6 @@ class GpioInterface(object, metaclass=ABCMeta):
     def __init__(self, wrapper):
         self._wrapper = wrapper
     
-    def _eventCallback(self, pin):
-        self._wrapper.onEvent.fire(self._wrapper, pin)
-    
     @abstractmethod
     def setup(self, pin, mode):
         pass
