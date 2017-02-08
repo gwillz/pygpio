@@ -1,12 +1,20 @@
 # pragma pylint: disable=bad-whitespace
-HIGH    = True
-LOW     = False
-OUT     = 0
-IN      = 1
-PWM     = 2
-_EVENT  = 4
-_RISING = 8
-_FALLING= 16
-RISING  = 13 #: 8 + _EVENT + IN
-FALLING = 21 #: 16 + _EVENT + IN
-BOTH    = 29 #: 8 + 16 + _EVENT + IN
+HIGH     = True
+LOW      = False
+OUT      = 0
+_IN      = 1
+PWM      = 2
+_RISING  = 4
+_FALLING = 8
+RISING   = _IN + _RISING
+FALLING  = _IN + _FALLING
+BOTH     = _IN + _RISING + _FALLING
+IN       = BOTH
+
+def _edge_name(mode):
+    if mode == RISING:
+        return 'rising'
+    elif mode == FALLING:
+        return 'falling'
+    else:
+        return 'both'
