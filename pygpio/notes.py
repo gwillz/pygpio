@@ -1,5 +1,6 @@
 import math
 # pragma pylint: disable=bad-whitespace
+# pragma: no cover
 
 _a = math.pow(2, 1.0/12)
 A  = 440
@@ -14,34 +15,54 @@ F  = A * math.pow(_a, 8)
 Fs = A * math.pow(_a, 9); Gf = Fs
 G  = A * math.pow(_a, 10)
 Gs = A * math.pow(_a, 11); Af = Gs
+rest = None; _ = None
 
 class octave:
-    up = math.pow(_a, 12)
-    down = math.pow(_a, -12)
+    up = math.pow(_a, 12); u = up
+    down = math.pow(_a, -12); d = down
+oc = octave
 
 class scores(object):
     lamb = [0.2,
-            E, D, C, D,
-            E, E, E, None,
-            D, D, D, None,
-            E, G, G, None,
-            E, D, C, D,
-            E, E, E, E,
-            D, D, E, D,
-            C, None, C*octave.up, None]
+            E, D, C, D, E, E, E, _,
+            D, D, D, _, E, G, G, _,
+            E, D, C, D, E, E, E, E,
+            D, D, E, D, C, _, C*oc.u, _]
     
-    birthday = [0.1, C, C, D, None,
-                C, None, F, None, E, None, None,
-                C, C, D, None,
-                C, None, G, None, F, None, None,
-                C, C, C*octave.up, None, A*octave.up, None,
-                F, None, E, None, D, None, None,
-                Bf*octave.up, Bf*octave.up, A*octave.up, None,
-                F, None, G, None, F]
+    birthday = [0.1, C, C, D, _, C, _, F, _, E, _, _,
+                     C, C, D, _, C, _, G, _, F, _, _,
+                     C, C, C*oc.u, _, A*oc.u, _, F, _, E, _, D, _, _,
+                     Bf*oc.u, Bf*oc.u, A*oc.u, _, F, _, G, _, F]
+    
+    mario = [0.1, E, E, _, E, _, C, E, _, G, _, _, _, G*oc.d, _, _, _]
+    mario_2 = [0.1, C, _, _, G*oc.d, _, _, E*oc.d, _, A, _, B, _, Bf, A, _,
+                    G*oc.d, E, G, A*oc.u, _, F, G, _, E, _, C, D, B, _, _, _]
+    mario_3 = [0.1, G, Gf, F, Ds, _, E, _, Gs*oc.d, A, C, _, A, C, D, _, _]
+    mario_4 = [0.1, G, Gf, F, Ds, _, E, _, C*oc.u, _, C*oc.u, C*oc.u, _, _, _]
+    mario_5 = [0.1, Ef, _, _, D, _, _, C, _, _, _, _, _, _]
+    
+    mario_full = mario + mario_2[1:] + mario_2[1:] + mario_3[1:] + mario_4[1:] + mario_3[1:] + mario_5[1:] +\
+                 mario_3[1:] + mario_4[1:] + mario_3[1:] + mario_5[1:]
+    
+    star_1 = [0.1, D*oc.d, D*oc.d, D*oc.d, G*oc.d, _, _, _, _, D, _, _, _, _]
+    star_2 = [0.1, C, B, A, G, _, _, _, _, D, _, _]
+    star_3 = [0.1, C, B, C, A, _, _, _, _]
+    star_4 = [0.1, D*oc.d, _, D*oc.d, G*oc.d, _, _, _, _, D, _, _, _]
+    
+    star_wars = star_1 + star_2[1:] + star_2[1:] + star_3[1:] + star_4[1:] + star_2[1:] + star_2[1:] + star_3[1:]
     
     error      = [0.1, C, C, C]
     connect    = [0.1, C, G]
     disconnect = [0.1, G, C]
     critical   = [0.2,
-                  C, G*octave.down, None,
-                  C, G*octave.down, None]
+                  C, G*oc.d, _,
+                  C, G*oc.d, _]
+
+
+if __name__ == "__main__": # pragma: no cover
+    import sys
+    from pygpio import Gpio, modes
+    
+    g = Gpio()
+    p = g.setup(18, modes.PWM)
+    p.playScore(scores.__dict__[sys.argv[1]])
