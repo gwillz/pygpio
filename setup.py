@@ -19,7 +19,7 @@ setup(name='pygpio',
       author='Gwilyn Saunders',
       author_email='gwilyn.saunders@mk2es.com.au',
       url='https://git.mk2es.com/mk2/pygpio',
-      packages=['pygpio'],
+      packages=['pygpio', 'pygpio.backends'],
       install_requires=requirements,
       classifiers=[
           'Operating System :: POSIX',
