@@ -4,6 +4,8 @@ from avent import wait_for
 from pygpio.interface import GpioInterface
 from pygpio import modes
 
+# TODO combine _addOutput, _addInput
+
 def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
     space = int(1.0 / freq * multiplier)
     mark = int(space * duty)
@@ -30,6 +32,7 @@ class NativeBackend(GpioInterface):
         self._pwmfreq = wrapper.PWM_FREQ
         self._pwmduty = wrapper.PWM_DUTY
         
+        self._out_pin = {}
         self._in_poll = select.poll()
         self._in_pin = {} #: pin -> mode, file, value
         self._in_file = {} #: fileno -> file, pin
@@ -61,9 +64,16 @@ class NativeBackend(GpioInterface):
             time.sleep(self.TICK) # file ops are slow apparently
             self._write(self._GPIO, m, pin=pin, prop='direction')
             
-            
             if pin in self._in_pin:
                 self._dropInput(pin)
+            
+            if pin in self._out_pin:
+                self._out_pin[pin].close()
+                del self._out_pin[pin]
+            
+            if mode == modes.OUT:
+                time.sleep(self.TICK)
+                self._out_pin[pin] = open(self._GPIO.format(pin=pin, prop='value'), 'w')
             
             if mode & modes._IN:
                 time.sleep(self.TICK)
@@ -79,10 +89,17 @@ class NativeBackend(GpioInterface):
         else:
             self._dropInput(pin)
             
+            if pin in self._out_pin:
+                self._out_pin[pin].close()
+            
             self._write(self._EXPORT, pin, prop='unexport')
     
     def write(self, pin, state):
-        self._write(self._GPIO, 1 if state else 0, pin=pin, prop='value')
+        # self._write(self._GPIO, 1 if state else 0, pin=pin, prop='value')
+        try:
+            self._out_pin[pin].write('1' if state else '0')
+            self._out_pin[pin].seek(0)
+        except KeyError: pass # eh?
         
     def read(self, pin):
         return self._in_pin[pin][2]
