@@ -51,12 +51,20 @@ class scores(object):
     
     star_wars = star_1 + star_2[1:] + star_2[1:] + star_3[1:] + star_4[1:] + star_2[1:] + star_2[1:] + star_3[1:]
     
-    error      = [0.1, C, C, C]
+    all_star_1 = [0.2, Fs*oc.d, _, Cs, As, As, _, Gs*oc.d, Fs*oc.d, Fs*oc.d, B, _, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, _]
+    all_star_2 = [0.2, Fs*oc.d, Cs, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d, Ds*oc.d, _, Cs*oc.d, _, _, _]
+    all_star_3 = [0.2, Fs*oc.d, Fs*oc.d, Cs, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d, B, _, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d]
+    all_star_4 = [0.2, Cs, _, As, As, As, _, Fs*oc.d, Fs*oc.d, Gs*oc.d, _, Ds*oc.d, _, _, _]
+    
+    all_star = all_star_1 + all_star_2[1:] + all_star_3[1:] + all_star_4[1:]
+    
+    error      = [0.1, C*oc.d, C*oc.d, C*oc.d]
     connect    = [0.1, C, G]
     disconnect = [0.1, G, C]
-    critical   = [0.2,
-                  C, G*oc.d, _,
-                  C, G*oc.d, _]
+    critical   = [0.15,
+                  G*oc.d, C*oc.d, _,
+                  G*oc.d, C*oc.d, _,
+                  _, _, _]
 
 
 if __name__ == "__main__": # pragma: no cover
