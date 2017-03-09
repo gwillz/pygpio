@@ -58,13 +58,6 @@ class scores(object):
     
     all_star = all_star_1 + all_star_2[1:] + all_star_3[1:] + all_star_4[1:]
     
-    error      = [0.1, C*oc.d, C*oc.d, C*oc.d]
-    connect    = [0.1, C, G]
-    disconnect = [0.1, G, C]
-    critical   = [0.15,
-                  G*oc.d, C*oc.d, _,
-                  G*oc.d, C*oc.d, _,
-                  _, _, _]
 
 
 if __name__ == "__main__": # pragma: no cover
