@@ -54,10 +54,27 @@ class scores(object):
     all_star_1 = [0.2, Fs*oc.d, _, Cs, As, As, _, Gs*oc.d, Fs*oc.d, Fs*oc.d, B, _, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, _]
     all_star_2 = [0.2, Fs*oc.d, Cs, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d, Ds*oc.d, _, Cs*oc.d, _, _, _]
     all_star_3 = [0.2, Fs*oc.d, Fs*oc.d, Cs, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d, B, _, As, As, Gs*oc.d, Gs*oc.d, Fs*oc.d, Fs*oc.d]
-    all_star_4 = [0.2, Cs, _, As, As, As, _, Fs*oc.d, Fs*oc.d, Gs*oc.d, _, Ds*oc.d, _, _, _]
+    all_star_4 = [0.2, Cs, _, As, As, Gs*oc.d, _, Fs*oc.d, Fs*oc.d, Gs*oc.d, _, Ds*oc.d, _, _, _]
     
     all_star = all_star_1 + all_star_2[1:] + all_star_3[1:] + all_star_4[1:]
     
+    thrones_1 = [0.1, G, _, C, _, Ef, F]
+    thrones_2 = [0.1, G, _, C, _, E, F]
+    thrones_intro = [0.1] + thrones_1[1:] + thrones_1[1:] + thrones_1[1:] + thrones_2[1:] \
+                + thrones_2[1:] + thrones_2[1:] + thrones_2[1:] + thrones_2[1:]
+    
+    thrones_3 = [0.1, G, _, _, _, _, C, _, _, _, Ef, F, G, _, _, _, C, _, _, _, Ef, F]
+    thrones_4 = [0.1, D, _, F*oc.d, _, Bf, C]
+    thrones_5 = [0.1, F, _, _, _, _, Bf, _, _, _, Ef, D, F, _, _, _, Bf, _, _, _, Ef, D]
+    thrones_6 = [0.1, C, _, G*oc.d, _, A, Bf]
+    thrones_7 = [0.1, F, _, _, _, _, Bf, _, _, _, D, _, _, Ef, _, _, D, _, _, Bf, _]
+    
+    thrones_full = thrones_intro \
+                + thrones_3[1:] + thrones_4[1:] + thrones_4[1:] + thrones_4[1:] + thrones_4[1:] \
+                + thrones_5[1:] + thrones_6[1:] + thrones_6[1:] + thrones_6[1:] + thrones_6[1:] \
+                + thrones_3[1:] + thrones_4[1:] + thrones_4[1:] + thrones_4[1:] + thrones_4[1:] \
+                + thrones_7[1:] + thrones_6[1:] + thrones_6[1:] + thrones_6[1:] + thrones_6[1:] + [C]
+                
 
 
 if __name__ == "__main__": # pragma: no cover
