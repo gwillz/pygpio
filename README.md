@@ -1,5 +1,11 @@
 PyGPIO
 ======
+
+
+![build status](https://git.mk2es.com.au/mk2/pygpio/badges/master/build.svg)
+![coverage report](https://git.mk2es.com.au/mk2/pygpio/badges/master/coverage.svg)
+
+
 This project attempts to unify the many different ways to interface with GPIO
 in a unified, formal, and consistent manner. It provides an simple interface for
 controlling digital output and PWM, and an event library for interrupt inputs.

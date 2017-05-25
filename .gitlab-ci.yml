@@ -1,0 +1,76 @@
+stages:
+ - pre-build
+ - test
+ - docs
+ - build
+ - deploy
+
+requirements:
+ stage: pre-build
+ allow_failure: true
+ tags:
+ - python3
+ - linux
+ script:
+ - pip3 install -r requirements.txt --user
+
+epydoc:
+ stage: docs
+ only:
+ - master
+ - tags
+ artifacts:
+  paths:
+  - html/
+ tags:
+ - python2
+ - linux
+ script:
+ - wget https://git.mk2es.com.au/snippets/9/raw -O doc-style.css -q
+ - >-
+   epydoc --no-sourcecode --no-frames --output html --simple-term -vv
+   --inheritance grouped --css doc-style.css
+   --name 'PyGPIO' pygpio
+
+pypi:
+ stage: build
+ only:
+ - master
+ - tags
+ artifacts:
+  paths:
+  - dist/
+ dependencies:
+ - epydoc
+ tags:
+ - python3
+ - linux
+ script:
+ - python3 setup.py bdist_wheel --universal
+
+lint:
+ stage: test
+ tags:
+ - python3
+ - linux
+ script:
+ - wget https://git.mk2es.com.au/snippets/8/raw -O mk2pylint.cfg -q
+ - python3 -m pylint --rcfile=mk2pylint.cfg pygpio --reports=no || [[ $(($? & 3)) == 0 ]]
+
+deploy:
+ stage: deploy
+ dependencies:
+ - epydoc
+ - pypi
+ only:
+ - master
+ - tags
+ tags:
+ - linux
+ - mk2-docs
+ script:
+ - '[ -e /srv/pypi/packages/pygpio ] || mkdir /srv/pypi/packages/pygpio'
+ - '[ -e /srv/api/pygpio ] || mkdir /srv/api/pygpio'
+ - cp -r html/* /srv/api/pygpio
+ - cp dist/*.whl /srv/pypi/packages/pygpio
+
