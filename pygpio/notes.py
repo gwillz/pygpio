@@ -1,5 +1,6 @@
 import math
 # pragma pylint: disable=bad-whitespace
+# pragma pylint: disable=bad-continuation
 # pragma: no cover
 
 _a = math.pow(2, 1.0/12)

@@ -1,6 +1,8 @@
-import RPi.GPIO as rpi
+import RPi.GPIO as rpi # pylint: disable=import-error
 from pygpio.interface import GpioInterface
 from pygpio import modes
+
+# pragma pylint: disable=protected-access
 
 class RpiBackend(GpioInterface):
     MAP = {

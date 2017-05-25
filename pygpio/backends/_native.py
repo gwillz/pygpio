@@ -4,6 +4,8 @@ from avent import wait_for
 from pygpio.interface import GpioInterface
 from pygpio import modes
 
+# pragma pylint: disable=protected-access
+
 # TODO combine _addOutput, _addInput
 
 def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
@@ -146,7 +148,7 @@ class NativeBackend(GpioInterface):
         
     def _dropInput(self, pin, destroy=True):
         try:
-            m, f, v = self._in_pin[pin]
+            m, f, v = self._in_pin[pin] # pylint: disable=unused-variable
             self._in_poll.unregister(f)
             f.close()
             
@@ -165,7 +167,8 @@ class NativeBackend(GpioInterface):
         timeout = int(self.POLL*1000)
         
         while self._continue:
-            for fd, ev in self._in_poll.poll(timeout): # this blocks
+             # this blocks
+            for fd, ev in self._in_poll.poll(timeout): # pylint: disable=unused-variable
                 f, pin = self._in_file[fd]
                 mode, _, old_v = self._in_pin[pin]
                 

@@ -1,7 +1,9 @@
 # import os
-import wiringpi as wpi
+import wiringpi as wpi # pylint: disable=import-error
 from pygpio.interface import GpioInterface
 from pygpio import modes
+
+# pragma pylint: disable=protected-access
 
 class WiringBackend(GpioInterface):
     MAP = {

@@ -13,7 +13,7 @@ def get_long_description(fname):
         return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(name='pygpio',
-      version='0.3',
+      version='0.3.1',
       description="An abstract interface for GPIO libraries",
       long_description=get_long_description('README.md'),
       author='Gwilyn Saunders',

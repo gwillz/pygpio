@@ -3,7 +3,7 @@ from avent import Event
 from pygpio.interface import GpioInterface
 from pygpio.backends._native import NativeBackend
 from pygpio._pwm import Pwm
-from pygpio import modes, notes as note
+from pygpio import modes
 
 class Gpio(object):
     MODES = [modes.OUT,
@@ -13,7 +13,7 @@ class Gpio(object):
              modes.FALLING,
              modes.BOTH]
     
-    PWM_FREQ = note.A #: in hertz
+    PWM_FREQ = 440 #: in hertz
     PWM_DUTY = 0.50 #: percentage
     IN_BOUNCE = 0.25 #: in seconds
     

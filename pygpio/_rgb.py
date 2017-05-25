@@ -1,6 +1,8 @@
 from pygpio._gpio import Gpio
 from pygpio import modes, backends
 
+# pragma pylint: disable=bad-whitespace
+
 class _Color(object):
     def __init__(self, red, green, blue):
         self.red, self.green, self.blue = red, green, blue
@@ -33,4 +35,4 @@ class Rgb(object):
         self.gpio.write(self._blue, color.blue)
     
     def clear(self):
-        self.setColor(self.black)
+        self.set(self.black)
