@@ -84,4 +84,14 @@ if __name__ == "__main__": # pragma: no cover
     
     g = Gpio()
     p = g.setup(18, modes.PWM)
-    p.playScore(scores.__dict__[sys.argv[1]])
+    
+    if len(sys.argv) > 1:
+        p.playScore(scores.__dict__[sys.argv[1]])
+    else:
+        print("list of scores:")
+        print("    lamb")
+        print("    birthday")
+        print("    mario_full")
+        print("    star_wars")
+        print("    all_star")
+        print("    thrones_full")
