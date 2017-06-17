@@ -1,5 +1,5 @@
 import atexit
-from avent import Event
+from epevents import Fluid as Event
 from pygpio.interface import GpioInterface
 from pygpio.backends._native import NativeBackend
 from pygpio._pwm import Pwm
