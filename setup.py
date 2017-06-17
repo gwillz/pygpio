@@ -13,12 +13,12 @@ def get_long_description(fname):
         return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(name='pygpio',
-      version='0.3.1',
+      version='0.3.2',
       description="An abstract interface for GPIO libraries",
       long_description=get_long_description('README.md'),
       author='Gwilyn Saunders',
       author_email='gwilyn.saunders@mk2es.com.au',
-      url='https://git.mk2es.com/mk2/pygpio',
+      url='https://git.mk2es.com/gwillz/pygpio',
       packages=['pygpio', 'pygpio.backends'],
       install_requires=requirements,
       classifiers=[

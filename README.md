@@ -1,10 +1,8 @@
 PyGPIO
 ======
 
-
-![build status](https://git.mk2es.com.au/mk2/pygpio/badges/master/build.svg)
-![coverage report](https://git.mk2es.com.au/mk2/pygpio/badges/master/coverage.svg)
-
+![build status](https://git.mk2es.com.au/gwillz/pygpio/badges/master/build.svg)
+![coverage report](https://git.mk2es.com.au/gwillz/pygpio/badges/master/coverage.svg)
 
 This project attempts to unify the many different ways to interface with GPIO
 in a unified, formal, and consistent manner. It provides an simple interface for
@@ -20,11 +18,6 @@ Supported Backends
  + RPi.GPIO >= 0.6+
  + WiringPi >= 2.0+
  + PyGPIO Native
-
-Authors
--------
- + [Gwilyn Saunders](https://git.gwillz.com.au/u/gwillz)
- + [MK2 Engineering Solutions](https://mk2es.com.au)
 
 
 Usage
