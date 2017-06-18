@@ -1,6 +1,5 @@
 
 import math, time, threading, select
-from avent import wait_for
 from pygpio.interface import GpioInterface
 from pygpio import modes
 
@@ -46,7 +45,7 @@ class NativeBackend(GpioInterface):
     
     def __del__(self):
         self._continue = False
-        wait_for(self._thread.is_alive, state=False)
+        self._thread.join()
         
         for pin in self._in_pin:
             self._dropInput(pin, destroy=False)
