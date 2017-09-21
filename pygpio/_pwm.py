@@ -1,4 +1,4 @@
-import time
+import time, sys
 
 class Pwm(object):
     def __init__(self, backend, pin):
@@ -24,3 +24,22 @@ class Pwm(object):
             time.sleep(score[0])
             self.stop()
             time.sleep(score[0]/2)
+
+
+
+if sys.version_info.major > 2 and sys.version_info.minor >= 4:
+    import asyncio
+    
+    @asyncio.coroutine
+    def playAsync(self, score):
+        for i in score[1:]:
+            if not i:
+                yield from asyncio.sleep(score[0] + score[0]/2)
+                continue
+    
+            self.start(i)
+            yield from asyncio.sleep(score[0])
+            self.stop()
+            yield from asyncio.sleep(score[0]/2)
+    
+    Pwm.playAsync = playAsync
