@@ -15,9 +15,9 @@ def hertz_to_ms(freq, duty=0.50, multiplier=math.pow(10, 7)):
 class NativeBackend(GpioInterface):
     PWM_PINS = {
         18: ('alt5', 0, 0),
+        12: ('alt0', 0, 0),
         13: ('alt0', 0, 1),
-        12: ('alt0', 1, 0),
-        19: ('alt5', 1, 1)
+        19: ('alt5', 0, 1),
     } #: pin -> func, chip, channel
     TICK = 0.1 #: time between export and gpio available (in seconds)
     POLL = 0.2 #: read timeout (in seconds)
