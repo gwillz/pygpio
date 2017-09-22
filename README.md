@@ -68,19 +68,19 @@ wget http://librpip.frasersdev.net/wp-content/uploads/2016/03/librpip-0.3.2.tar.
 tar -xf librpip-0.3.2.tar.gz
 cd librpip-0.3.2/
 
+# create pwm group
+sudo groupadd -r pwm
+sudo usermod -aG pwm pi
+
 # install librpip
 ./configure
 make
 sudo make install
 
 # install pwm init service
-cp distro/arch/pwm-init.service /etc/systemd/system
+sudo cp distro/arch/pwm-init.service /etc/systemd/system
 sudo systemctl daemon-reload
 sudo systemctl enable pwm-init
-
-# create pwm group
-sudo groupadd -R pwm
-sudo usermod -aG pwm pi
 
 # add pwm to the boot config
 sudo su -c 'echo dtoverlay=pwm,pin=12,func=4 > /boot/config.txt'
@@ -100,7 +100,7 @@ Pin Channel Mapping
 | PWM  | Pin | func | mode |
 |------|-----|------|------|
 | PWM0 | 12  | 4    | alt0 |
-| PWM0 | 18  | 1    | alt5 |
+| PWM0 | 18  | 2    | alt5 |
 | PWM0 | 40  | 4    | alt0 |
 | PWM0 | 52  | 5    | alt1 |
 | PWM1 | 13  | 4    | alt0 |

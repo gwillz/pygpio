@@ -11,3 +11,5 @@ doc-style.css
 *.py~
 *.cfg~
 .coverage
+librpip-*/
+!librpip.sh
