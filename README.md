@@ -83,7 +83,29 @@ sudo groupadd -R pwm
 sudo usermod -aG pwm pi
 
 # add pwm to the boot config
-sudo su -c 'echo dtoverlay=pwm,pin=18,func=2 > /boot/config.txt'
+sudo su -c 'echo dtoverlay=pwm,pin=12,func=4 > /boot/config.txt'
 
 sudo reboot
 ```
+
+
+Pin Channel Mapping
+-------------------
+
+(for Raspberry Pi)
+
+*Note: pins >40 are only available on the Compute Module*
+
+
+| PWM  | Pin | func | mode |
+|------|-----|------|------|
+| PWM0 | 12  | 4    | alt0 |
+| PWM0 | 18  | 1    | alt5 |
+| PWM0 | 40  | 4    | alt0 |
+| PWM0 | 52  | 5    | alt1 |
+| PWM1 | 13  | 4    | alt0 |
+| PWM1 | 19  | 2    | alt5 |
+| PWM1 | 41  | 4    | alt0 |
+| PWM1 | 45  | 4    | alt0 |
+| PWM1 | 53  | 5    | alt1 |
+
