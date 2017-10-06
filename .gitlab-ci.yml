@@ -46,7 +46,7 @@ pypi:
  - python3
  - linux
  script:
- - python3 setup.py bdist_wheel --universal
+ - python3 setup.py bdist_wheel
 
 lint:
  stage: test

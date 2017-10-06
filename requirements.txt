@@ -1,2 +1,2 @@
 --extra-index-url=https://pip.mk2es.com.au/simple
-epevents>=0.1
+epevents>=0.2
